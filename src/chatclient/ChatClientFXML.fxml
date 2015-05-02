@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="200" prefWidth="320" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="chatclient.ChatClientFXMLController">
+   <children>
+      <TextArea fx:id="txtChat" layoutX="-7.0" layoutY="55.0" prefHeight="145.0" prefWidth="320.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="55.0" />
+      <TextField fx:id="txtName" layoutX="79.0" layoutY="1.0" />
+      <TextField fx:id="txtMessage" layoutX="79.0" layoutY="27.0" />
+      <Label layoutX="24.0" layoutY="6.0" prefHeight="16.0" prefWidth="57.0" text="Name" />
+      <Label layoutX="23.0" layoutY="32.0" prefHeight="16.0" prefWidth="77.0" text="Message" />
+   </children>
+</AnchorPane>
