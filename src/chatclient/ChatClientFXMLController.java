@@ -5,12 +5,15 @@
  */
 package chatclient;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextArea;
@@ -32,32 +35,60 @@ public class ChatClientFXMLController implements Initializable {
     // IO streams
     DataOutputStream toServer = null;
     DataInputStream fromServer = null;
+    Socket socket = null;
+    InputStreamReader inputStreamReader = null;
+    BufferedReader bufferedReader = null;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
-      txtMessage.setOnAction(e -> {
-      try {
-        //get the clients name and message from textfields
-        String name = txtName.getText();
-        String message = txtMessage.getText();
-  
-        // Send the message to the server
-        toServer.writeUTF(name + ": " + message);
-        toServer.flush();
-  
-        // Display to the text area
-        //txtChat.appendText(name + ": " + message + "\n");
         
-      }
-      catch (IOException ex) {
-        System.err.println(ex);
-      }
-    });  
-      
+                  new Thread( () -> {  
+
+        txtMessage.setOnAction(e -> {
+        try {
+            
+          //get the clients name and message from textfields
+          String name = txtName.getText();
+          String message = txtMessage.getText();
+          txtMessage.clear();
+
+          // Send the message to the server
+          toServer.writeUTF(name + ": " + message);
+          toServer.flush();
+          
+        // Create and start a new thread for the connection
+        new Thread(new HandleServer(socket)).start(); 
+
+        } catch (IOException ex) {
+          System.err.println(ex);
+        }
+      });  
+           
+      // Create and start a new thread for the connection
+      new Thread(new HandleServer(socket)).start();  
+        
+      }).start();
+                  
+        
+    }    
+    
+  // Define the thread class for handling new connection
+  class HandleServer implements Runnable {
+    private Socket socket; // A connected socket
+
+    /** Construct a thread */
+    public HandleServer(Socket socket) {
+      this.socket = socket;
+    }
+
+    /** Run a thread */
+    @Override
+    public void run() {
       try {
+      
       // Create a socket to connect to the server
-      Socket socket = new Socket("localhost", 8005);
+      socket = new Socket("localhost", 8002);
       
       // Create an input stream to receive data from the server
       fromServer = new DataInputStream(socket.getInputStream());
@@ -65,20 +96,26 @@ public class ChatClientFXMLController implements Initializable {
       // Create an output stream to send data to the server
       toServer = new DataOutputStream(socket.getOutputStream());
       
+      //inputStreamReader = new InputStreamReader(socket.getInputStream());
+      
+      //bufferedReader = new BufferedReader(inputStreamReader);
+      
+      String messageFromServer = fromServer.readUTF();
+      
+      Platform.runLater(() -> {
+          txtChat.appendText(messageFromServer + '\n');
+      });
       
       
-          
-          String message = fromServer.readUTF();
-          
-          txtChat.appendText(message + "\n");
-      
-     
-          
+    } catch (IOException ex) {
+        txtChat.appendText(ex.toString() + '\n');
     }
-    catch (IOException ex) {
-      txtChat.appendText(ex.toString() + '\n');
-    }
-        
-    }    
     
+    }
+    
+  }
 }
+        
+        
+
+
